@@ -31,6 +31,12 @@ import java.util.Iterator;
  * 2. 缓冲区（Buffer）：负责数据的存取
  *
  * 3. 选择器（Selector）：是 SelectableChannel 的多路复用器。用于监控 SelectableChannel 的 IO 状况
+ *      与Selector一起使用时，Channel必须处于非阻塞模式下
+ *
+ *      通道触发了一个事件意思是该事件已经就绪。所以，某个channel成功连接到另一个服务器称为“连接就绪”。
+ *      一个server socket channel准备好接收新进入的连接称为“接收就绪”。
+ *      一个有数据可读的通道可以说是“读就绪”。等待写数据的通道可以说是“写就绪”。
+ *      一旦调用了select()方法，并且返回值表明有一个或更多个通道就绪了，然后可以通过调用selector的selectedKeys()方法，访问“已选择键集（selected key set）”中的就绪通道
  */
 public class NONBlockingNIOTest {
 
@@ -86,35 +92,42 @@ public class NONBlockingNIOTest {
     }
 
 
-
+    /**
+     * SocketChannel.open(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9898));
+     * 这种方式创建SocketChannel，是阻塞式的，无法用在非阻塞式。可以看源码
+     * @throws Exception
+     */
     @Test
     public void client01()throws Exception{
 
-        SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9898));
+        SocketChannel socketChannel = SocketChannel.open();
 
         socketChannel.configureBlocking(false);
+        socketChannel.connect(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9898));
 
         Selector selector = Selector.open();
+        socketChannel.register(selector,SelectionKey.OP_CONNECT);
 
-        //socketChannel.register(selector,SelectionKey.OP_CONNECT);
-
-//        while(true){
-//
-//
-//
-//
-//
-//        }
-
-        ByteBuffer bf = ByteBuffer.allocate(1024);
-        bf.put("你好服务端！".getBytes());
-        bf.flip();
-        while(bf.hasRemaining()){
-            socketChannel.write(bf);
+        selector.select();
+        Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+        while (it.hasNext()) {
+            SelectionKey key = it.next();
+            if (key.isValid()) {
+                if (key.isConnectable()) {
+                    if (socketChannel.finishConnect()) {
+                        ByteBuffer bf = ByteBuffer.allocate(1024);
+                        bf.put("你好服务端！".getBytes());
+                        bf.flip();
+                        while (bf.hasRemaining()) {
+                            socketChannel.write(bf);
+                        }
+                    }
+                }
+            }
         }
 
+        it.remove();
         socketChannel.close();
-
     }
 
 
