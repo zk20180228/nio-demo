@@ -152,6 +152,10 @@ public class BufferTest {
         bf.get(bts02);
         //cd
         System.out.println(new String(bts02,0,bts02.length));
+        //5
+        System.out.println(bf.limit());
+        //4
+        System.out.println(bf.position());
 
     }
 

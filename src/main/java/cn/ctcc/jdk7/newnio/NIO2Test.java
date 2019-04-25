@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.DosFileAttributeView;
@@ -24,15 +23,25 @@ public class NIO2Test {
     public void test01(){
         Path path = Paths.get("e:/", "nio/hello.txt");
 
+        //true
         System.out.println(path.endsWith("hello.txt"));
+        //true
         System.out.println(path.startsWith("e:/"));
-
+        //true
         System.out.println(path.isAbsolute());
+        //hello.txt
         System.out.println(path.getFileName());
 
         for (int i = 0; i < path.getNameCount(); i++) {
+            //nio
+            //hello.txt
             System.out.println(path.getName(i));
         }
+
+        boolean b = Files.exists(path);
+        //false
+        System.out.println(b);
+
     }
 
     /**
@@ -75,6 +84,9 @@ public class NIO2Test {
     }
 
 
+    /**
+     *     Files.copy
+     */
     @Test
     public void test03() throws Exception{
         Path path1 = Paths.get("e:/nio/hello.txt");
@@ -83,6 +95,14 @@ public class NIO2Test {
         Files.copy(path1,path2,StandardCopyOption.REPLACE_EXISTING);
     }
 
+    /**
+     * Files.createDirectory
+     * Files.createFile
+     * Files.delete
+     * Files.move
+     * Files.size
+     * @throws Exception
+     */
     @Test
     public void test04()throws Exception{
 
@@ -129,7 +149,7 @@ public class NIO2Test {
      */
     @Test
     public void test06() throws IOException{
-        Path path = Paths.get("e:/nio/hello7.txt");
+        Path path = Paths.get("pom.xml");
 //		System.out.println(Files.exists(path, LinkOption.NOFOLLOW_LINKS));
 
         BasicFileAttributes readAttributes = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
@@ -151,7 +171,7 @@ public class NIO2Test {
      */
     @Test
     public void test7() throws IOException{
-        SeekableByteChannel newByteChannel = Files.newByteChannel(Paths.get("1.jpg"), StandardOpenOption.READ);
+       // SeekableByteChannel newByteChannel = Files.newByteChannel(Paths.get("1.jpg"), StandardOpenOption.READ);
 
         DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(Paths.get("e:/"));
 
@@ -171,6 +191,8 @@ public class NIO2Test {
 
             ByteBuffer buf = ByteBuffer.allocate(1024);
             inChannel.read(buf);
+            buf.flip();
+            outChannel.write(buf);
 
         }catch(IOException e){
 

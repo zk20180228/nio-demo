@@ -64,6 +64,7 @@ public class ChannelTest {
     @Test
     public void test01() throws Exception {
 
+
         Instant start = Instant.now();
 
         try (   //jdk1.7新特性，ARM，自动资源管理
@@ -182,9 +183,11 @@ public class ChannelTest {
 
         //聚集写入
         RandomAccessFile rw = new RandomAccessFile("2.xml", "rw");
-        rw.getChannel().write(bfs);
+        FileChannel rwChannel = rw.getChannel();
+        rwChannel.write(bfs);
 
-
+        rwChannel.close();
+        fc.close();
     }
 
 
