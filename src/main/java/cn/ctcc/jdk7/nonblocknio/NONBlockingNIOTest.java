@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -204,6 +206,28 @@ public class NONBlockingNIOTest {
             iterator.remove();
         }
     }
+
+    /**
+     *     NetworkInterface-->网络接口和分配给此接口的IP地址列表:列出机器上的可用网络接口
+     */
+    @Test
+    public void test05()throws Exception{
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        while(networkInterfaces.hasMoreElements()){
+            NetworkInterface networkInterface = networkInterfaces.nextElement();
+            System.out.println(networkInterface.getName()+"-->"+networkInterface.isVirtual()+"-->"+networkInterface.supportsMulticast());
+            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+            while(inetAddresses.hasMoreElements()){
+                InetAddress address = inetAddresses.nextElement();
+                System.out.println(address.getHostAddress());
+            }
+            System.out.println("-----------------------分隔符--------------");
+
+        }
+
+    }
+
+
 
 
 }
